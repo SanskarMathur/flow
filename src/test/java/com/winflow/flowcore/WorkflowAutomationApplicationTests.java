@@ -1,10 +1,10 @@
-package com.sanskar.Flow;
+package com.winflow.flowcore;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class FlowApplicationTests {
+class WorkflowAutomationApplicationTests {
 
 	@Test
 	void contextLoads() {

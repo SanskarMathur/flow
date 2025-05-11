@@ -1,13 +1,13 @@
-package com.sanskar.Flow;
+package com.winflow.flowcore;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class FlowApplication {
+public class WorkflowAutomationApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(FlowApplication.class, args);
+		SpringApplication.run(WorkflowAutomationApplication.class, args);
 	}
 
 }
