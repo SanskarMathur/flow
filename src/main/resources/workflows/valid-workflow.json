@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "metadata": {
+    "name": "Morning Routine",
+    "description": "Start essential services on boot",
+    "author": "admin",
+    "createdAt": "2025-05-10T06:00:00Z",
+    "status": "active"
+  },
+  "trigger": {
+    "id": "boot-trigger-001",
+    "type": "boot",
+    "description": "Trigger on system boot",
+    "triggerEvent": "system_boot",
+    "additionalCondition": {
+      "type": "file_exists",
+      "path": "/etc/config/init.conf"
+    }
+  },
+  "execution": {
+    "concurrency": "sequential",
+    "maxRetries": 3,
+    "logOutput": true
+  },
+  "hooks": {
+    "preWorkflow": ["echo Starting..."],
+    "postWorkflow": ["echo Finished!"],
+    "onFailure": {
+      "type": "notify",
+      "message": "Workflow failed unexpectedly"
+    }
+  },
+  "jobs": [
+    {
+      "id": "job1",
+      "type": "command",
+      "command": "echo Hello World"
+    },
+    {
+      "id": "job2",
+      "type": "script",
+      "command": "./run.sh",
+      "script": {
+        "path": "/usr/local/bin/run.sh",
+        "args": ["--env=prod"]
+      },
+      "depends_on": ["job1"],
+      "onFailure": "retry",
+      "timeout": 60,
+      "maxRetries": 2
+    }
+  ],
+  "manualTrigger": {
+    "enabled": true,
+    "lastTriggeredBy": "admin",
+    "lastTriggeredAt": "2025-05-10T06:30:00Z"
+  },
+  "tags": ["startup", "boot", "routine"]
+}

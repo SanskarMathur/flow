@@ -1,0 +1,287 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Workflow Definition",
+  "type": "object",
+  "required": [
+    "metadata",
+    "trigger",
+    "jobs"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "name",
+        "createdAt",
+        "status"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "author": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "active",
+            "inactive",
+            "archived"
+          ]
+        }
+      }
+    },
+    "params": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "trigger": {
+      "type": "object",
+      "required": [
+        "id",
+        "type"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "boot",
+            "time",
+            "file",
+            "usb",
+            "manual",
+            "api"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "triggerEvent": {
+          "type": "string"
+        },
+        "triggerTime": {
+          "type": "string",
+          "pattern": "^\\d{2}:\\d{2}$"
+        },
+        "filePath": {
+          "type": "string"
+        },
+        "additionalCondition": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "file_exists",
+                "env_set",
+                "system_idle"
+              ]
+            },
+            "path": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "properties": {
+        "concurrency": {
+          "type": "string",
+          "enum": [
+            "sequential",
+            "parallel"
+          ]
+        },
+        "maxRetries": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "logOutput": {
+          "type": "boolean"
+        }
+      }
+    },
+    "hooks": {
+      "type": "object",
+      "properties": {
+        "preWorkflow": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "postWorkflow": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "onFailure": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "notify",
+                "log",
+                "script"
+              ]
+            },
+            "message": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "jobs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "command"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "command",
+              "script",
+              "notify",
+              "api_call",
+              "custom"
+            ]
+          },
+          "command": {
+            "type": "string"
+          },
+          "script": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "args": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "timeout": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "maxRetries": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "onFailure": {
+            "type": "string",
+            "enum": [
+              "stop",
+              "continue",
+              "retry"
+            ]
+          },
+          "depends_on": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "logs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "jobId",
+          "startTime",
+          "endTime",
+          "status"
+        ],
+        "properties": {
+          "jobId": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "success",
+              "failed",
+              "skipped"
+            ]
+          },
+          "exitCode": {
+            "type": "integer"
+          },
+          "stdout": {
+            "type": "string"
+          },
+          "stderr": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "manualTrigger": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "lastTriggeredBy": {
+          "type": "string"
+        },
+        "lastTriggeredAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false
+}

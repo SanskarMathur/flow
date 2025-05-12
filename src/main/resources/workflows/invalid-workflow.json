@@ -1,0 +1,20 @@
+{
+  "version": 0,
+  "metadata": {
+    "name": "Evening Cleanup",
+    "createdAt": "2025-05-10",
+    "status": "enabled"
+  },
+  "trigger": {
+    "id": "evening-trigger",
+    "type": "moon",
+    "description": "Nonexistent trigger type"
+  },
+  "jobs": [
+    {
+      "id": "cleanup1",
+      "type": "unknown",
+      "command": ""
+    }
+  ]
+}
