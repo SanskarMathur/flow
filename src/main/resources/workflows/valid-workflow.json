@@ -1,59 +1,72 @@
 {
-  "version": 1,
   "metadata": {
-    "name": "Morning Routine",
-    "description": "Start essential services on boot",
+    "name": "Daily Backup Workflow",
+    "description": "Performs daily backup at midnight",
     "author": "admin",
-    "createdAt": "2025-05-10T06:00:00Z",
-    "status": "active"
+    "createdAt": "2025-05-13T08:00:00Z",
+    "updatedAt": "2025-05-13T10:00:00Z",
+    "status": "active",
+    "version": 1
+  },
+  "params": {
+    "backupDir": "/mnt/backup",
+    "retentionDays": "7"
   },
   "trigger": {
-    "id": "boot-trigger-001",
-    "type": "boot",
-    "description": "Trigger on system boot",
-    "triggerEvent": "system_boot",
-    "additionalCondition": {
-      "type": "file_exists",
-      "path": "/etc/config/init.conf"
-    }
+    "id": "daily-time-trigger",
+    "type": "cron",
+    "description": "Triggers every day at midnight",
+    "triggerEvent": "daily_midnight",
+    "triggerCronExpression": "0 0/1 * * * ?"
   },
   "execution": {
     "concurrency": "sequential",
-    "maxRetries": 3,
+    "maxRetries": 2,
     "logOutput": true
   },
   "hooks": {
-    "preWorkflow": ["echo Starting..."],
-    "postWorkflow": ["echo Finished!"],
+    "preWorkflow": ["echo Starting backup..."],
+    "postWorkflow": ["echo Backup complete."],
     "onFailure": {
       "type": "notify",
-      "message": "Workflow failed unexpectedly"
+      "message": "Backup job failed"
     }
   },
   "jobs": [
     {
       "id": "job1",
       "type": "command",
-      "command": "echo Hello World"
+      "command": "tar -czf /mnt/backup/backup_$(date +%F).tar.gz /data",
+      "timeout": 600,
+      "maxRetries": 1,
+      "onFailure": "retry",
+      "dependencies": []
     },
     {
       "id": "job2",
-      "type": "script",
-      "command": "./run.sh",
-      "script": {
-        "path": "/usr/local/bin/run.sh",
-        "args": ["--env=prod"]
-      },
-      "depends_on": ["job1"],
-      "onFailure": "retry",
-      "timeout": 60,
-      "maxRetries": 2
+      "type": "command",
+      "command": "find /mnt/backup -type f -mtime +7 -delete",
+      "timeout": 300,
+      "maxRetries": 1,
+      "onFailure": "continue",
+      "dependencies": ["job1"]
+    }
+  ],
+  "logs": [
+    {
+      "jobId": "job1",
+      "startTime": "2025-05-13T00:00:00Z",
+      "endTime": "2025-05-13T00:10:00Z",
+      "status": "success",
+      "exitCode": 0,
+      "stdout": "Backup completed successfully.",
+      "stderr": ""
     }
   ],
   "manualTrigger": {
     "enabled": true,
     "lastTriggeredBy": "admin",
-    "lastTriggeredAt": "2025-05-10T06:30:00Z"
+    "lastTriggeredAt": "2025-05-12T23:59:00Z"
   },
-  "tags": ["startup", "boot", "routine"]
+  "tags": ["daily", "backup", "critical"]
 }
