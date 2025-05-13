@@ -1,5 +1,7 @@
 package com.winflow.flowcore.core.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 @Getter
@@ -17,4 +19,18 @@ public enum TriggerTypeEnum {
         this.event = event;
     }
 
+    @JsonValue
+    public String getEvent() {
+        return event;
+    }
+
+    @JsonCreator
+    public static TriggerTypeEnum fromValue(String value) {
+        for (TriggerTypeEnum eventEnum : values()) {
+            if (eventEnum.event.equalsIgnoreCase(value)) {
+                return eventEnum;
+            }
+        }
+        throw new IllegalArgumentException("Unknown enum value: " + value);
+    }
 }
