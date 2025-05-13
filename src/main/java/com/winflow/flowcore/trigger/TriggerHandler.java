@@ -4,7 +4,9 @@ import com.winflow.flowcore.core.model.Workflow;
 import com.winflow.flowcore.engine.WorkflowExecutor;
 
 public interface TriggerHandler {
-    void initialize(Workflow workflow, WorkflowExecutor executor);
+    void register(Workflow workflow, WorkflowExecutor executor);
 
-    void trigger();
+    void initialize();
+
+    void trigger(Workflow workflow, WorkflowExecutor executor);
 }
