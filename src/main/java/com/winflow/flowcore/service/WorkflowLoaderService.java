@@ -1,15 +1,17 @@
 package com.winflow.flowcore.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.winflow.flowcore.core.model.Workflow;
-import com.winflow.flowcore.exception.WorkflowValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 @Service
@@ -19,22 +21,23 @@ public class WorkflowLoaderService {
 
     public Workflow loadWorkflow(String filePath) {
         try {
-            InputStream workflowInput = new FileInputStream(filePath);
-            JSONObject workflowObj = objectMapper.readValue(workflowInput, JSONObject.class);
+            JsonNode jsonNode = objectMapper.readTree(new FileInputStream(filePath));
+            JSONObject jsonObject = new JSONObject(objectMapper.writeValueAsString(jsonNode));
 
-            InputStream validatorSchemaInput = getClass().getClassLoader().getResourceAsStream("workflow.schema.json");
-            if (validatorSchemaInput == null) {
-                throw new WorkflowValidationException("Could not find workflow schema");
+            InputStream schemaStream = getClass().getClassLoader().getResourceAsStream("workflow.schema.json");
+            if (schemaStream == null) {
+                throw new FileNotFoundException("Could not find workflow.schema.json");
             }
-            JSONObject validatorSchemaObj = objectMapper.readValue(validatorSchemaInput, JSONObject.class);
-            Schema schema = SchemaLoader.load(validatorSchemaObj);
 
-            schema.validate(workflowObj);
+            JSONObject rawSchema = new JSONObject(new JSONTokener(schemaStream));
+            Schema schema = SchemaLoader.load(rawSchema);
 
-            return objectMapper.readValue(workflowObj.toString(), Workflow.class);
+            schema.validate(jsonObject);
+
+            return objectMapper.treeToValue(jsonNode, Workflow.class);
+
         } catch (Exception e) {
-            log.error("Failed to load/validate workflow: {}", e.getMessage());
-            throw new WorkflowValidationException("Failed to load/validate workflow: " + e.getMessage());
+            throw new RuntimeException("Failed to load and parse workflow: " + e.getMessage(), e);
         }
     }
 }
