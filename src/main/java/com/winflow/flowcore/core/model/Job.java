@@ -1,17 +1,18 @@
 package com.winflow.flowcore.core.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.winflow.flowcore.core.enums.JobFailEnum;
 import com.winflow.flowcore.core.enums.JobStatusEnum;
 import com.winflow.flowcore.core.enums.JobTypeEnum;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Data
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Job {
     private String id;
     private JobTypeEnum type;

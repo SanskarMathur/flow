@@ -3,8 +3,6 @@ package com.winflow.flowcore.core.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
-import java.util.List;
-
 @Data
 @Getter
 @Setter
@@ -12,9 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Workflow {
-    private Metadata metadata;
-    private Trigger trigger;
-    private List<Job> jobs;
-    private Execution execution;
+public class Execution {
+    private Integer maxRetries;
+    private boolean logOutput;
 }
