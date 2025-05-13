@@ -4,8 +4,8 @@ import com.winflow.flowcore.config.AppConfig;
 import com.winflow.flowcore.core.model.Workflow;
 import com.winflow.flowcore.service.WorkflowLoaderService;
 import com.winflow.flowcore.trigger.TriggerDispatcher;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -13,20 +13,12 @@ import java.io.File;
 
 @Component
 @Slf4j
+@AllArgsConstructor
 public class StartupRunner implements CommandLineRunner {
 
     private final WorkflowLoaderService workflowLoaderService;
-
-    @Autowired
     private AppConfig config;
-
-    @Autowired
     private TriggerDispatcher triggerDispatcher;
-
-    @Autowired
-    public StartupRunner(WorkflowLoaderService workflowLoaderService) {
-        this.workflowLoaderService = workflowLoaderService;
-    }
 
     @Override
     public void run(String... args) {
