@@ -4,6 +4,7 @@ import com.winflow.flowcore.core.model.Workflow;
 import com.winflow.flowcore.engine.WorkflowExecutor;
 import com.winflow.flowcore.trigger.TriggerHandler;
 import com.winflow.flowcore.util.CronUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
@@ -15,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 
 @Component
+@Slf4j
 public class CronTriggerHandler implements TriggerHandler {
     private final ThreadPoolTaskScheduler scheduler;
     private final Map<String, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
@@ -35,6 +37,7 @@ public class CronTriggerHandler implements TriggerHandler {
 
         try {
             Date nextScheduleTime = cronUtil.getNextSchedulingTime(cronExpression);
+            log.info("Scheduling workflow '{}' for cron '{}', next run at: '{}'", workflow.getMetadata().getName(), cronExpression, nextScheduleTime);
 
             ScheduledFuture<?> future = scheduler.schedule(() -> {
                 trigger(workflow, executor);
@@ -45,12 +48,17 @@ public class CronTriggerHandler implements TriggerHandler {
         } catch (ParseException e) {
             throw new RuntimeException("Invalid cron expression: " + cronExpression, e);
         }
-
     }
 
     @Override
     public void deregister(Workflow workflow, WorkflowExecutor executor) {
+        String triggerId = workflow.getTrigger().getId();
 
+        if (scheduledTasks.containsKey(triggerId)) {
+            ScheduledFuture<?> future = scheduledTasks.get(triggerId);
+            future.cancel(true);
+            scheduledTasks.remove(triggerId);
+        }
     }
 
     @Override
@@ -60,7 +68,7 @@ public class CronTriggerHandler implements TriggerHandler {
 
     @Override
     public void trigger(Workflow workflow, WorkflowExecutor executor) {
-        System.out.println("Triggering workflow: " + workflow.getTrigger().getId());
+        log.info("Event: '{}' captured. Triggering workflow: '{}'", workflow.getTrigger().getType(), workflow.getMetadata().getName());
         executor.execute(workflow);
     }
 }
