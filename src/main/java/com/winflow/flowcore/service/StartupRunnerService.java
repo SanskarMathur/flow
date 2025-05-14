@@ -1,20 +1,19 @@
-package com.winflow.flowcore.bootstrap;
+package com.winflow.flowcore.service;
 
 import com.winflow.flowcore.config.AppConfig;
 import com.winflow.flowcore.core.model.Workflow;
-import com.winflow.flowcore.service.WorkflowLoaderService;
 import com.winflow.flowcore.trigger.TriggerDispatcher;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 
-@Component
+@Service
 @Slf4j
 @AllArgsConstructor
-public class StartupRunner implements CommandLineRunner {
+public class StartupRunnerService implements CommandLineRunner {
 
     private final WorkflowLoaderService workflowLoaderService;
     private AppConfig config;
@@ -39,7 +38,7 @@ public class StartupRunner implements CommandLineRunner {
                 triggerDispatcher.registerTrigger(workflow);
                 log.info("Registered trigger for: {}", workflow.getMetadata().getName());
             } catch (Exception e) {
-                log.error("Failed to load workflow: {} : {}", workflowFile.getName(), e.getMessage());
+                log.warn("Failed to load workflow: {} : {}", workflowFile.getName(), e.getMessage());
             }
         }
     }
