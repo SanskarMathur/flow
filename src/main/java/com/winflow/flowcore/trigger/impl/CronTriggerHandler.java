@@ -4,29 +4,27 @@ import com.winflow.flowcore.core.model.Workflow;
 import com.winflow.flowcore.engine.WorkflowExecutor;
 import com.winflow.flowcore.trigger.TriggerHandler;
 import com.winflow.flowcore.util.CronUtil;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ScheduledFuture;
 
 @Component
 @Slf4j
+@AllArgsConstructor
 public class CronTriggerHandler implements TriggerHandler {
+    private final Set<String> workflowRegistry = new ConcurrentSkipListSet<>();
     private final ThreadPoolTaskScheduler scheduler;
     private final Map<String, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
     private final CronUtil cronUtil;
-
-    @Autowired
-    public CronTriggerHandler(ThreadPoolTaskScheduler scheduler, CronUtil cronUtil) {
-        this.scheduler = scheduler;
-        this.cronUtil = cronUtil;
-    }
 
     @Override
     public void register(Workflow workflow, WorkflowExecutor executor) {
@@ -45,30 +43,30 @@ public class CronTriggerHandler implements TriggerHandler {
             }, nextScheduleTime.toInstant());
 
             scheduledTasks.put(workflow.getTrigger().getId(), future);
+            workflowRegistry.add(workflow.getMetadata().getWorkflowId());
         } catch (ParseException e) {
             throw new RuntimeException("Invalid cron expression: " + cronExpression, e);
         }
     }
 
     @Override
-    public void deregister(Workflow workflow, WorkflowExecutor executor) {
+    public void deregister(Workflow workflow) {
         String triggerId = workflow.getTrigger().getId();
 
         if (scheduledTasks.containsKey(triggerId)) {
             ScheduledFuture<?> future = scheduledTasks.get(triggerId);
             future.cancel(true);
+
             scheduledTasks.remove(triggerId);
+            workflowRegistry.remove(workflow.getMetadata().getWorkflowId());
         }
     }
 
     @Override
-    public void initialize() {
-
-    }
-
-    @Override
     public void trigger(Workflow workflow, WorkflowExecutor executor) {
-        log.info("Event: '{}' captured. Triggering workflow: '{}'", workflow.getTrigger().getType(), workflow.getMetadata().getName());
-        executor.execute(workflow);
+        if (workflowRegistry.contains(workflow.getMetadata().getWorkflowId())) {
+            log.info("Event: '{}' captured. Triggering workflow: '{}'", workflow.getTrigger().getType(), workflow.getMetadata().getName());
+            executor.execute(workflow);
+        }
     }
 }
