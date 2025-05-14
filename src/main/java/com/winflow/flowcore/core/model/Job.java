@@ -4,11 +4,15 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.winflow.flowcore.core.enums.JobFailEnum;
 import com.winflow.flowcore.core.enums.JobStatusEnum;
 import com.winflow.flowcore.core.enums.JobTypeEnum;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+import java.util.Map;
 
 @Data
-@Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,4 +26,6 @@ public class Job {
     private Integer maxRetries;
     private JobStatusEnum status;
     private JobFailEnum onFailure;
+    private List<String> dependencies;
+    private Map<String, Object> params;
 }

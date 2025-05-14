@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.winflow.flowcore.core.enums.TriggerTypeEnum;
 import lombok.*;
 
+import java.util.Map;
+
 @Data
 @Getter
 @Setter
@@ -18,4 +20,5 @@ public class Trigger {
     private String triggerEvent;
     private String triggerCronExpression;
     private String triggerFilePath;
+    private Map<String, Object> additionalProperties;
 }

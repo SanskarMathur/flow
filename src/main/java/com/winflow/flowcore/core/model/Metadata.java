@@ -12,6 +12,7 @@ import lombok.*;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Metadata {
+    private String workflowId;
     private String name;
     private String description;
     private String author;

@@ -1,5 +1,6 @@
 {
   "metadata": {
+    "workflowId": "WF_00001",
     "name": "Daily Backup Workflow",
     "description": "Performs daily backup at midnight",
     "author": "admin",
@@ -8,7 +9,7 @@
     "status": "active",
     "version": 1
   },
-  "params": {
+  "contextParams": {
     "backupDir": "/mnt/backup",
     "retentionDays": "7"
   },
@@ -63,10 +64,5 @@
       "stderr": ""
     }
   ],
-  "manualTrigger": {
-    "enabled": true,
-    "lastTriggeredBy": "admin",
-    "lastTriggeredAt": "2025-05-12T23:59:00Z"
-  },
   "tags": ["daily", "backup", "critical"]
 }

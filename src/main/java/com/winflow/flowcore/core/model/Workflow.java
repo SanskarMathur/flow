@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Getter
@@ -17,4 +18,5 @@ public class Workflow {
     private Trigger trigger;
     private List<Job> jobs;
     private Execution execution;
+    private Map<String, Object> contextParams;
 }
