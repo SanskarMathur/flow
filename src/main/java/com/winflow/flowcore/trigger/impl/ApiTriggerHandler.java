@@ -13,6 +13,11 @@ public class ApiTriggerHandler implements TriggerHandler {
     }
 
     @Override
+    public void deregister(Workflow workflow, WorkflowExecutor executor) {
+
+    }
+
+    @Override
     public void initialize() {
 
     }

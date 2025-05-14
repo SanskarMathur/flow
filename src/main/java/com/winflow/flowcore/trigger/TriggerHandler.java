@@ -6,6 +6,8 @@ import com.winflow.flowcore.engine.WorkflowExecutor;
 public interface TriggerHandler {
     void register(Workflow workflow, WorkflowExecutor executor);
 
+    void deregister(Workflow workflow, WorkflowExecutor executor);
+
     void initialize();
 
     void trigger(Workflow workflow, WorkflowExecutor executor);
