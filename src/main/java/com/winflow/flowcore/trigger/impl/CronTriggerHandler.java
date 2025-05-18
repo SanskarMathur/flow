@@ -1,16 +1,16 @@
 package com.winflow.flowcore.trigger.impl;
 
+import com.winflow.flowcore.core.model.Trigger;
 import com.winflow.flowcore.core.model.Workflow;
 import com.winflow.flowcore.engine.WorkflowExecutor;
+import com.winflow.flowcore.repo.WorkflowRepository;
 import com.winflow.flowcore.trigger.TriggerHandler;
-import com.winflow.flowcore.util.CronUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Component;
 
-import java.text.ParseException;
-import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,50 +21,46 @@ import java.util.concurrent.ScheduledFuture;
 @Slf4j
 @AllArgsConstructor
 public class CronTriggerHandler implements TriggerHandler {
-    private final Set<String> workflowRegistry = new ConcurrentSkipListSet<>();
+    private final Set<String> triggerRegistry = new ConcurrentSkipListSet<>();
     private final ThreadPoolTaskScheduler scheduler;
     private final Map<String, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
-    private final CronUtil cronUtil;
+    private final WorkflowRepository workflowRepository;
+    private final WorkflowExecutor executor;
 
     @Override
-    public void register(Workflow workflow, WorkflowExecutor executor) {
-        String cronExpression = workflow.getTrigger().getTriggerCronExpression();
+    public void register(Trigger trigger) {
+        String cronExpression = trigger.getTriggerCronExpression();
         if (cronExpression == null || cronExpression.isEmpty()) {
             throw new IllegalArgumentException("Missing cron expression in workflow");
         }
 
-        try {
-            Date nextScheduleTime = cronUtil.getNextSchedulingTime(cronExpression);
-            log.info("Scheduling workflow '{}' for cron '{}', next run at: '{}'", workflow.getMetadata().getName(), cronExpression, nextScheduleTime);
+        log.info("Scheduling trigger '{}' for cron '{}'", trigger.getId(), cronExpression);
 
-            ScheduledFuture<?> future = scheduler.schedule(() -> {
-                trigger(workflow, executor);
-                register(workflow, executor);
-            }, nextScheduleTime.toInstant());
+        ScheduledFuture<?> future = scheduler.schedule(() -> {
+            trigger(trigger.getId());
+            register(trigger);
+        }, new CronTrigger(cronExpression));
 
-            scheduledTasks.put(workflow.getTrigger().getId(), future);
-            workflowRegistry.add(workflow.getMetadata().getWorkflowId());
-        } catch (ParseException e) {
-            throw new RuntimeException("Invalid cron expression: " + cronExpression, e);
-        }
+        scheduledTasks.put(trigger.getId(), future);
+        triggerRegistry.add(trigger.getId());
     }
 
     @Override
-    public void deregister(Workflow workflow) {
-        String triggerId = workflow.getTrigger().getId();
-
+    public void deregister(String triggerId) {
         if (scheduledTasks.containsKey(triggerId)) {
             ScheduledFuture<?> future = scheduledTasks.get(triggerId);
             future.cancel(true);
 
             scheduledTasks.remove(triggerId);
-            workflowRegistry.remove(workflow.getMetadata().getWorkflowId());
+            triggerRegistry.remove(triggerId);
+            log.info("Cancelled scheduled cron trigger: {}", triggerId);
         }
     }
 
     @Override
-    public void trigger(Workflow workflow, WorkflowExecutor executor) {
-        if (workflowRegistry.contains(workflow.getMetadata().getWorkflowId())) {
+    public void trigger(String triggerId) {
+        if (triggerRegistry.contains(triggerId)) {
+            Workflow workflow = workflowRepository.loadWorkflowByTriggerId(triggerId);
             log.info("Event: '{}' captured. Triggering workflow: '{}'", workflow.getTrigger().getType(), workflow.getMetadata().getName());
             executor.execute(workflow);
         }

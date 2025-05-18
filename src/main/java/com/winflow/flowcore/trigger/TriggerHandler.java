@@ -1,12 +1,11 @@
 package com.winflow.flowcore.trigger;
 
-import com.winflow.flowcore.core.model.Workflow;
-import com.winflow.flowcore.engine.WorkflowExecutor;
+import com.winflow.flowcore.core.model.Trigger;
 
 public interface TriggerHandler {
-    void register(Workflow workflow, WorkflowExecutor executor);
+    void register(Trigger trigger);
 
-    void deregister(Workflow workflow);
+    void deregister(String triggerId);
 
-    void trigger(Workflow workflow, WorkflowExecutor executor);
+    void trigger(String triggerId);
 }

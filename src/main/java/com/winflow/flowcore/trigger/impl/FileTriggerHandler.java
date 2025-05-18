@@ -1,7 +1,6 @@
 package com.winflow.flowcore.trigger.impl;
 
-import com.winflow.flowcore.core.model.Workflow;
-import com.winflow.flowcore.engine.WorkflowExecutor;
+import com.winflow.flowcore.core.model.Trigger;
 import com.winflow.flowcore.trigger.TriggerHandler;
 import org.springframework.stereotype.Component;
 
@@ -16,8 +15,8 @@ public class FileTriggerHandler implements TriggerHandler {
     private final Set<String> workflowRegistry = new ConcurrentSkipListSet<>();
 
     @Override
-    public void register(Workflow workflow, WorkflowExecutor executor) {
-        String watchFilePath = workflow.getTrigger().getTriggerFilePath();
+    public void register(Trigger trigger) {
+        String watchFilePath = trigger.getTriggerFilePath();
 
         try {
             WatchService watchService = FileSystems.getDefault().newWatchService();
@@ -28,12 +27,12 @@ public class FileTriggerHandler implements TriggerHandler {
     }
 
     @Override
-    public void deregister(Workflow workflow) {
+    public void deregister(String triggerId) {
 
     }
 
     @Override
-    public void trigger(Workflow workflow, WorkflowExecutor executor) {
+    public void trigger(String triggerId) {
 
     }
 }

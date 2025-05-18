@@ -1,14 +1,14 @@
 package com.winflow.flowcore.trigger;
 
 import com.winflow.flowcore.core.enums.TriggerTypeEnum;
-import com.winflow.flowcore.core.model.Workflow;
+import com.winflow.flowcore.core.model.Trigger;
 import com.winflow.flowcore.engine.WorkflowExecutor;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Dispatches triggers to corresponding trigger handlers
@@ -21,20 +21,35 @@ public class TriggerDispatcher {
     private TriggerHandlerFactory factory;
     private WorkflowExecutor executor;
 
-    private final Set<String> registeredTriggers = new ConcurrentSkipListSet<>();
+    private final Map<String, Trigger> registeredTriggers = new ConcurrentHashMap<>();
 
-    public void registerTrigger(Workflow workflow) {
-        if (registeredTriggers.contains(workflow.getTrigger().getId())) {
+    public void registerTrigger(Trigger trigger) {
+        if (registeredTriggers.containsKey(trigger.getId())) {
             return;
         }
 
-        TriggerTypeEnum triggerType = workflow.getTrigger().getType();
+        TriggerTypeEnum triggerType = trigger.getType();
         TriggerHandler triggerHandler = factory.getHandler(triggerType);
         if (triggerHandler == null) {
             throw new IllegalArgumentException("Unsupported Trigger type " + triggerType);
         }
 
-        triggerHandler.register(workflow, executor);
-        registeredTriggers.add(workflow.getTrigger().getId());
+        triggerHandler.register(trigger);
+        registeredTriggers.put(trigger.getId(), trigger);
+    }
+
+    public void deRegisterTrigger(String triggerId) {
+        if (registeredTriggers.containsKey(triggerId)) {
+            Trigger trigger = registeredTriggers.get(triggerId);
+            TriggerTypeEnum triggerType = trigger.getType();
+
+            TriggerHandler triggerHandler = factory.getHandler(triggerType);
+            if (triggerHandler == null) {
+                throw new IllegalArgumentException("Unsupported Trigger type " + triggerType);
+            }
+
+            triggerHandler.deregister(trigger.getId());
+            registeredTriggers.remove(triggerId);
+        }
     }
 }

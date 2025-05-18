@@ -5,7 +5,7 @@ import com.winflow.flowcore.trigger.TriggerHandler;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SystemTriggerHandler implements TriggerHandler {
+public class UserActivityTriggerHandler implements TriggerHandler {
     @Override
     public void register(Trigger trigger) {
 
