@@ -8,21 +8,27 @@ import org.springframework.stereotype.Component;
 @Component
 @AllArgsConstructor
 public class TriggerHandlerFactory {
-    private final SystemTriggerHandler systemTriggerHandler;
-    private final ManualTriggerHandler manualTriggerHandler;
-    private final FileTriggerHandler fileTriggerHandler;
+    private final ApplicationTriggerHandler applicationTriggerHandler;
     private final CronTriggerHandler cronTriggerHandler;
-    private final ApiTriggerHandler apiTriggerHandler;
-    private final ExternalTriggerHandler externalTriggerHandler;
+    private final FileTriggerHandler fileTriggerHandler;
+    private final HotkeyTriggerHandler hotkeyTriggerHandler;
+    private final ManualTriggerHandler manualTriggerHandler;
+    private final SystemTriggerHandler systemTriggerHandler;
+    private final UserActivityTriggerHandler userActivityTriggerHandler;
 
     public TriggerHandler getHandler(TriggerTypeEnum triggerType) {
+        if (triggerType == null) {
+            throw new IllegalArgumentException("Trigger type cannot be null");
+        }
+
         return switch (triggerType) {
-            case SYSTEM_EVENT -> systemTriggerHandler;
-            case MANUAL_EVENT -> manualTriggerHandler;
-            case FILE_EVENT -> fileTriggerHandler;
+            case APPLICATION_EVENT -> applicationTriggerHandler;
             case CRON_EVENT -> cronTriggerHandler;
-            case API_EVENT -> apiTriggerHandler;
-            case EXTERNAL_EVENT -> externalTriggerHandler;
+            case FILE_EVENT -> fileTriggerHandler;
+            case HOTKEY_EVENT -> hotkeyTriggerHandler;
+            case MANUAL_EVENT -> manualTriggerHandler;
+            case SYSTEM_EVENT -> systemTriggerHandler;
+            case USER_ACTIVITY_EVENT -> userActivityTriggerHandler;
         };
     }
 }

@@ -6,12 +6,13 @@ import lombok.Getter;
 
 @Getter
 public enum TriggerTypeEnum {
-    SYSTEM_EVENT("system"),
+    APPLICATION_EVENT("application"),
     CRON_EVENT("cron"),
     FILE_EVENT("file"),
+    HOTKEY_EVENT("hotkey"),
     MANUAL_EVENT("manual"),
-    API_EVENT("api"),
-    EXTERNAL_EVENT("external");
+    SYSTEM_EVENT("system"),
+    USER_ACTIVITY_EVENT("userActivity");
 
     private final String event;
 

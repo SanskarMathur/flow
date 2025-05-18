@@ -23,7 +23,7 @@
       "required": ["id","type"],
       "properties": {
         "id": {"type": "string"},
-        "type": {"type": "string", "enum": ["boot","cron","file","usb","manual","api"]},
+        "type": {"type": "string", "enum": ["application","cron","file","hotkey","manual","system","userActivity"]},
         "description": {"type": "string"},
         "triggerEvent": {"type": "string"},
         "triggerCronExpression": {"type": "string", "pattern": "^([\\d*/,\\-]+)\\s+([\\d*/,\\-]+)\\s+([\\d*/,\\-]+)\\s+([\\d*/?,\\-LW]+)\\s+([\\d*/?,\\-]+)\\s+([\\d*/?,\\-#L]+)$"},
