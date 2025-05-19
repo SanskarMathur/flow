@@ -3,6 +3,7 @@ package com.winflow.flowcore.trigger.impl;
 import com.winflow.flowcore.core.model.Trigger;
 import com.winflow.flowcore.core.model.Workflow;
 import com.winflow.flowcore.engine.WorkflowExecutor;
+import com.winflow.flowcore.exception.RegisterTriggerException;
 import com.winflow.flowcore.repo.WorkflowRepository;
 import com.winflow.flowcore.trigger.TriggerHandler;
 import lombok.AllArgsConstructor;
@@ -31,7 +32,7 @@ public class CronTriggerHandler implements TriggerHandler {
     public void register(Trigger trigger) {
         String cronExpression = trigger.getTriggerCronExpression();
         if (cronExpression == null || cronExpression.isEmpty()) {
-            throw new IllegalArgumentException("Missing cron expression in workflow");
+            throw new RegisterTriggerException("Missing cron expression in workflow", trigger.getId());
         }
 
         log.info("Scheduling trigger '{}' for cron '{}'", trigger.getId(), cronExpression);

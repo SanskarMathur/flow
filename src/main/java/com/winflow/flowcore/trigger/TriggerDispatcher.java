@@ -3,6 +3,7 @@ package com.winflow.flowcore.trigger;
 import com.winflow.flowcore.core.enums.TriggerTypeEnum;
 import com.winflow.flowcore.core.model.Trigger;
 import com.winflow.flowcore.engine.WorkflowExecutor;
+import com.winflow.flowcore.exception.RegisterTriggerException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -31,7 +32,7 @@ public class TriggerDispatcher {
         TriggerTypeEnum triggerType = trigger.getType();
         TriggerHandler triggerHandler = factory.getHandler(triggerType);
         if (triggerHandler == null) {
-            throw new IllegalArgumentException("Unsupported Trigger type " + triggerType);
+            throw new RegisterTriggerException("Unsupported Trigger type: " + triggerType, trigger.getId());
         }
 
         triggerHandler.register(trigger);
