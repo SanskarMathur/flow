@@ -5,8 +5,6 @@ import com.winflow.flowcore.core.enums.WorkflowStatusEnum;
 import lombok.*;
 
 @Data
-@Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
