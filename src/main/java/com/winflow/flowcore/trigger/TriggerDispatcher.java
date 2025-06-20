@@ -2,7 +2,6 @@ package com.winflow.flowcore.trigger;
 
 import com.winflow.flowcore.core.enums.TriggerTypeEnum;
 import com.winflow.flowcore.core.model.Trigger;
-import com.winflow.flowcore.engine.WorkflowExecutor;
 import com.winflow.flowcore.exception.RegisterTriggerException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +19,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class TriggerDispatcher {
     private TriggerHandlerFactory factory;
-    private WorkflowExecutor executor;
 
     private final Map<String, Trigger> registeredTriggers = new ConcurrentHashMap<>();
 
