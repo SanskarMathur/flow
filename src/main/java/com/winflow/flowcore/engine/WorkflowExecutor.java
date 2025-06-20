@@ -1,5 +1,6 @@
 package com.winflow.flowcore.engine;
 
+import com.winflow.flowcore.core.WorkflowConstants;
 import com.winflow.flowcore.core.model.*;
 import com.winflow.flowcore.engine.handler.JobHandler;
 import com.winflow.flowcore.engine.handler.JobHandlerStrategy;
@@ -18,14 +19,15 @@ import java.util.concurrent.CompletableFuture;
 @AllArgsConstructor
 public class WorkflowExecutor {
     private final JobHandlerStrategy jobHandlerStrategy;
+//    private int tries;
 
     public void execute(Workflow workflow) {
         String executionStrategy = workflow.getExecution().getConcurrency();
 
-        if (executionStrategy.equals("sequential")) {
-            WorkflowExecutionResult executionResult = executeSequentially(workflow);
-        } else if (executionStrategy.equals("parallel")) {
+        if (executionStrategy.equals(WorkflowConstants.EXECUTION_STRATEGY_PARALLEL)) {
             CompletableFuture<WorkflowExecutionResult> executionResult = executeParallel(workflow);
+        } else {
+            WorkflowExecutionResult executionResult = executeSequentially(workflow);
         }
     }
 
@@ -40,7 +42,7 @@ public class WorkflowExecutor {
 
         ExecutionContext executionContext = new ExecutionContext(workflowId);
         Map<String, JobExecutionResult> results = new HashMap<>();
-        boolean success = true;
+        boolean workflowSuccess = true;
 
         try {
             for (Job job : jobs) {
@@ -48,22 +50,31 @@ public class WorkflowExecutor {
                 results.put(job.getId(), result);
 
                 if (!result.isSuccess()) {
-                    success = false;
+                    workflowSuccess = false;
                     break;
                 }
             }
         } catch (Exception e) {
             log.error("Workflow execution failed: {}", e.getMessage());
-            success = false;
+            workflowSuccess = false;
         }
 
+//        if (!workflowSuccess) {
+//            if (tries < workflow.getExecution().getMaxRetries()) {
+//                log.info("Retrying workflow = {} execution...", workflowId);
+//                tries++;
+//                return executeSequentially(workflow);
+//            }
+//            log.info("Maximum retries reached, workflow failed: {}", workflowId);
+//            return null;
+//        }
 
         log.info("Workflow execution successful: {}", workflowId);
         return WorkflowExecutionResult.builder()
                 .executionId(executionContext.getExecutionId())
                 .workflowId(workflowId)
                 .jobResults(results)
-                .successful(success)
+                .successful(workflowSuccess)
                 .build();
     }
 
