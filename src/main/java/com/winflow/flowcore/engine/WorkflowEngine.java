@@ -4,6 +4,7 @@ import com.winflow.flowcore.core.model.Trigger;
 import com.winflow.flowcore.repo.WorkflowRepository;
 import com.winflow.flowcore.trigger.TriggerDispatcher;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -18,8 +19,13 @@ public class WorkflowEngine {
     @PostConstruct
     public void init() {
         List<Trigger> triggers = repository.loadAllTriggers();
-        for(Trigger trigger : triggers) {
+        for (Trigger trigger : triggers) {
             dispatcher.registerTrigger(trigger);
         }
+    }
+
+    @PreDestroy
+    public void destroy() {
+        dispatcher.deRegisterAllTriggers();
     }
 }

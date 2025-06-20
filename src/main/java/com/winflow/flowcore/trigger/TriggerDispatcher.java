@@ -53,4 +53,11 @@ public class TriggerDispatcher {
             registeredTriggers.remove(triggerId);
         }
     }
+
+    public void deRegisterAllTriggers() {
+        for (Trigger trigger : registeredTriggers.values()) {
+            deRegisterTrigger(trigger.getId());
+        }
+        log.info("All triggers have been de-registered");
+    }
 }
