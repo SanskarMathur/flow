@@ -1,5 +1,6 @@
 package com.winflow.flowcore.trigger.impl;
 
+import com.winflow.flowcore.core.WorkflowConstants;
 import com.winflow.flowcore.core.model.Trigger;
 import com.winflow.flowcore.core.model.Workflow;
 import com.winflow.flowcore.engine.WorkflowExecutor;
@@ -30,7 +31,7 @@ public class CronTriggerHandler implements TriggerHandler {
 
     @Override
     public void register(Trigger trigger) {
-        String cronExpression = trigger.getTriggerCronExpression();
+        String cronExpression = (String) trigger.getConfig(WorkflowConstants.TRIGGER_CRON_EXPRESSION);
         if (cronExpression == null || cronExpression.isEmpty()) {
             throw new RegisterTriggerException("Missing cron expression in workflow", trigger.getId());
         }

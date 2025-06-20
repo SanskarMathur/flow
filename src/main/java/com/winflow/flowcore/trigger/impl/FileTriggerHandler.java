@@ -1,5 +1,6 @@
 package com.winflow.flowcore.trigger.impl;
 
+import com.winflow.flowcore.core.WorkflowConstants;
 import com.winflow.flowcore.core.model.Trigger;
 import com.winflow.flowcore.core.model.Workflow;
 import com.winflow.flowcore.engine.WorkflowExecutor;
@@ -33,14 +34,14 @@ public class FileTriggerHandler implements TriggerHandler {
     public void register(Trigger trigger) {
         if (triggerRegistry.contains(trigger.getId())) return;
 
-        Path watchFilePath = Paths.get(trigger.getTriggerFilePath());
+        Path watchFilePath = Paths.get((String) trigger.getConfig(WorkflowConstants.TRIGGER_FILE_PATH));
         boolean isDirectory = Files.isDirectory(watchFilePath);
 
         // If it's a file, watch its parent directory
         if (!isDirectory) {
             Path parentPath = watchFilePath.getParent();
             if (parentPath == null) {
-                parentPath = Paths.get(".");
+                parentPath = Paths.get(".");    // Fallback to current directory (if no parent exists) TODO: Check this logic
             }
             watchFilePath = parentPath;
         }
@@ -56,7 +57,7 @@ public class FileTriggerHandler implements TriggerHandler {
 
             triggerRegistry.add(trigger.getId());
             watchServiceRegistry.put(trigger.getId(), watchService);
-            watchPathRegistry.put(trigger.getTriggerFilePath(), watchFilePath);
+            watchPathRegistry.put((String) trigger.getConfig(WorkflowConstants.TRIGGER_FILE_PATH), watchFilePath); // Required because files map to their parent directories
 
             Thread thread = new Thread(() -> eventListener(trigger.getId()));
             thread.setDaemon(true);
